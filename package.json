@@ -15,7 +15,7 @@
 		"sdk:build": "tsc --project tsconfig.sdk.json",
 		"sdk:dev": "tsx build-sdk.ts --watch",
 		"build": "yarn cli:build && yarn sdk:build",
-		"release": "yarn build && yarn changesets publish"
+		"release": "yarn build && yarn changeset publish"
 	},
 	"files": [
 		"dist/cli",
