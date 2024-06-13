@@ -1,9 +1,9 @@
 {
 	"name": "convect-xyz",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"license": "MIT",
-	"bin": "dist-cli/cli.js",
-	"main": "dist-sdk/index.js",
+	"bin": "dist/cli/cli.js",
+	"main": "dist/sdk/index.js",
 	"type": "module",
 	"engines": {
 		"node": ">=16"
@@ -11,13 +11,15 @@
 	"scripts": {
 		"cli:build": "BASE_URL='https://convect.xyz' tsx build-cli.ts",
 		"cli:dev": "BASE_URL='http://localhost:3000' tsx build-cli.ts --watch",
+		"cli:test": "prettier --check . && xo && ava",
 		"sdk:build": "tsc --project tsconfig.sdk.json",
 		"sdk:dev": "tsx build-sdk.ts --watch",
-		"cli:test": "prettier --check . && xo && ava"
+		"build": "yarn cli:build && yarn sdk:build",
+		"release": "yarn build && yarn changesets publish"
 	},
 	"files": [
-		"dist-cli",
-		"dist-sdk"
+		"dist/cli",
+		"dist/sdk"
 	],
 	"dependencies": {
 		"@tanstack/react-query": "5.40.1",
@@ -69,6 +71,9 @@
 		"rules": {
 			"react/prop-types": "off"
 		}
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"prettier": "@vdemedes/prettier-config"
 }
