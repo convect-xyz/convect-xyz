@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2020",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "commonjs",                                /* Specify what module code is generated. */
+		"moduleResolution": "node",
+		"module": "ES6",
     "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
     "emitDeclarationOnly": false,                      /* Only output d.ts files and not JavaScript files. */
     "outDir": "./dist/sdk",                                   /* Specify an output folder for all emitted files. */

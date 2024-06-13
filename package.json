@@ -13,7 +13,7 @@
 		"cli:dev": "BASE_URL='http://localhost:3000' tsx build-cli.ts --watch",
 		"cli:test": "prettier --check . && xo && ava",
 		"sdk:build": "tsc --project tsconfig.sdk.json",
-		"sdk:dev": "tsx build-sdk.ts --watch",
+		"sdk:dev": "tsc --project tsconfig.sdk.json",
 		"build": "yarn cli:build && yarn sdk:build",
 		"release": "yarn build && yarn changeset publish"
 	},

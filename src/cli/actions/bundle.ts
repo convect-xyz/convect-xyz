@@ -46,7 +46,7 @@ export async function bundleFile(options: BundleFileOptions) {
 	for (const [logConfigs, txConfigIdx] of allLogConfigs) {
 		for (const logConfig of logConfigs) {
 			let topics = encodeEventTopics({abi: [logConfig._event]});
-			let eventSignature = topics.at(0)!.substring(2);
+			let eventSignature = topics[0].substring(2);
 			let origin = logConfig._origin;
 
 			let identifier = eventSignature + '-' + origin;

@@ -5,6 +5,7 @@ const enableWatch = process.argv.find(arg => arg === '--watch') === '--watch';
 (async () => {
 	const config = {
 		entryPoints: ['./src/cli/**/*.tsx', './src/cli/**/*.ts'],
+		tsconfig: './tsconfig.cli.json',
 		outdir: 'dist/cli',
 		define: {
 			'process.env.BASE_URL': JSON.stringify(process.env.BASE_URL),
