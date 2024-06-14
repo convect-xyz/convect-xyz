@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.6
+
+### Patch Changes
+
+- 217e3e6: Add support for multiple chain ids on log configs
+
 ## 0.0.5
 
 ### Patch Changes
