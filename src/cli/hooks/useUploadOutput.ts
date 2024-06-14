@@ -16,5 +16,5 @@ export function useUploadOutputStatus() {
 		filters: {
 			mutationKey,
 		},
-	}).at(0);
+	})[0];
 }

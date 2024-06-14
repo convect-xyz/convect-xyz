@@ -27,5 +27,5 @@ export function useTriggerBundleStatus() {
 		filters: {
 			mutationKey,
 		},
-	}).at(0);
+	})[0];
 }

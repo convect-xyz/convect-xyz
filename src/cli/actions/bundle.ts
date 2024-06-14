@@ -28,10 +28,10 @@ export async function bundleFile(options: BundleFileOptions) {
 	const {
 		default: {default: pipeline},
 	} = await import(path.join(process.cwd(), outfile));
+	const allTxConfigs = pipeline.handlers as Array<any>;
 
-	const allTxConfigs = Object.values(pipeline);
 	const manifest = {
-		tx_configs: allTxConfigs.flatMap((v: any) => ({
+		tx_configs: allTxConfigs.map((v: any) => ({
 			start_block: v._startBlock.toString(),
 		})),
 		log_configs: [] as Array<any>,
