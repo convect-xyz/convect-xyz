@@ -6,6 +6,7 @@ import {hashFileName} from '../lib/utils.js';
 
 export type BundleFileOptions = {
 	entrypoint: string;
+	chainId: number;
 };
 
 export async function bundleFile(options: BundleFileOptions) {
@@ -47,7 +48,15 @@ export async function bundleFile(options: BundleFileOptions) {
 		for (const logConfig of logConfigs) {
 			let topics = encodeEventTopics({abi: [logConfig._event]});
 			let eventSignature = topics[0].substring(2);
-			let origin = logConfig._origin;
+			let origin =
+				typeof logConfig._origin === 'string'
+					? logConfig._origin
+					: logConfig._origin[options.chainId];
+			if (!origin) {
+				throw new Error(
+					`No contract address defined for chain id: ${options.chainId}`,
+				);
+			}
 
 			let identifier = eventSignature + '-' + origin;
 

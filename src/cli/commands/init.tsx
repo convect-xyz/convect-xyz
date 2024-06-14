@@ -31,7 +31,10 @@ type InitState = {
 		name: string;
 		exists: boolean;
 	};
-	chain?: string;
+	chain?: {
+		id: string;
+		chainId: number;
+	};
 	entrypoint?: string;
 	override?: boolean;
 };
@@ -116,7 +119,7 @@ function DisplayChain() {
 	if (state.chain) {
 		return (
 			<StatusMessage variant="success">
-				Chain ({chains?.find(c => c.id === state.chain)!.name})
+				Chain ({chains?.find(c => c.id === state.chain?.id)!.name})
 			</StatusMessage>
 		);
 	}
@@ -166,7 +169,7 @@ function CurrentInput() {
 				outfile: data.outfile,
 				outmanifest: data.outmanifest,
 				override: getOverride(),
-				chain,
+				chain: chain.id,
 			}).catch(() => {});
 		},
 	});
@@ -221,6 +224,7 @@ function CurrentInput() {
 					useInitState.setState({currentState: undefined, entrypoint});
 					triggerBundle({
 						entrypoint,
+						chainId: state.chain!.chainId,
 					});
 				}}
 			/>
@@ -253,7 +257,9 @@ function SelectProject(props: {onSelect: (id: string) => void}) {
 	);
 }
 
-function SelectChain(props: {onSelect: (id: string) => void}) {
+function SelectChain(props: {
+	onSelect: (chain: {id: string; chainId: number}) => void;
+}) {
 	const {data: chains, error, isLoading} = useChains();
 
 	if (isLoading) {
@@ -270,7 +276,7 @@ function SelectChain(props: {onSelect: (id: string) => void}) {
 
 			<Select
 				options={chains?.map(p => ({label: p.name, value: p.id})) ?? []}
-				onChange={props.onSelect}
+				onChange={id => props.onSelect(chains?.find(c => c.id === id)!)}
 			/>
 		</Box>
 	);

@@ -31,9 +31,16 @@ export class Transaction<const TLogs extends Array<any>, THandler> {
 	}
 }
 
+type TransactionContext = {
+	chainId: number;
+};
+
 export function transaction<
 	const TLogs extends Array<any>,
-	THandler = (v: Array<InferTransaction<TLogs>>) => Promise<void>,
+	THandler extends (
+		v: Array<InferTransaction<TLogs>>,
+		ctx: TransactionContext,
+	) => Promise<void>,
 >(v: {logs: TLogs; handler: THandler; startBlock?: bigint}) {
 	return new Transaction<TLogs, THandler>(v);
 }

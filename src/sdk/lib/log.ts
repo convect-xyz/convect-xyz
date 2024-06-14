@@ -34,9 +34,12 @@ export type S<
 export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 	private _topics: string[];
 	private _event: TAbiEvent;
-	private _origin: Address;
+	private _origin: Address | Record<number, Address>;
 
-	constructor(options: {event: TAbiEvent; origin: Address}) {
+	constructor(options: {
+		event: TAbiEvent;
+		origin: Address | Record<number, Address>;
+	}) {
 		this._event = options.event;
 		this._origin = options.origin;
 		this._topics = encodeEventTopics({
@@ -47,7 +50,8 @@ export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 
 export function log<
 	const TSignature extends string | readonly string[] | readonly unknown[],
->(options: {signature: S<TSignature>; origin: Address}) {
+	const TAddress extends Address | Record<number, Address>,
+>(options: {signature: S<TSignature>; origin: TAddress}) {
 	const parsedSignature = parseAbiItem(options.signature);
 	if (parsedSignature.type !== 'event') {
 		throw new Error('Only events are supported');

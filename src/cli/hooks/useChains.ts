@@ -6,6 +6,7 @@ type GetChainsResponse = {
 	chains: Array<{
 		id: string;
 		name: string;
+		chainId: number;
 	}>;
 };
 
