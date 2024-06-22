@@ -10,7 +10,10 @@ import {
 	useGenerateManifest,
 	useGenerateManifestStatus,
 } from '../hooks/useGenerateManifest.js';
-import {useGetHandlerInfo} from '../hooks/useGetHandlerInfo.js';
+import {
+	useGetHandlerInfo,
+	useGetHandlerInfoStatus,
+} from '../hooks/useGetHandlerInfo.js';
 import {
 	useTriggerBundle,
 	useTriggerBundleStatus,
@@ -92,12 +95,16 @@ function DisplayFunction() {
 }
 
 function DisplayHandlerInfo() {
-	const state = useInitState();
+	const handlerState = useGetHandlerInfoStatus();
 
-	if (state.handler) {
+	if (handlerState.status === 'pending') {
+		return <Spinner label="Getting handler information" />;
+	}
+
+	if (handlerState.status === 'success' && handlerState.data) {
 		return (
 			<StatusMessage variant="success">
-				Handler Name: {state.handler.handlerName}
+				Handler Name: {handlerState.data.handlerName}
 			</StatusMessage>
 		);
 	}
@@ -107,8 +114,6 @@ function DisplayHandlerInfo() {
 
 function DisplayBundleState() {
 	const bundleState = useTriggerBundleStatus();
-
-	if (!bundleState) return <></>;
 
 	if (bundleState.status === 'pending') {
 		return <Spinner label="Bundling source code" />;
@@ -126,8 +131,6 @@ function DisplayBundleState() {
 function DisplayGenerateManifestState() {
 	const generateState = useGenerateManifestStatus();
 
-	if (!generateState) return <></>;
-
 	if (generateState.status === 'pending') {
 		return <Spinner label="Generating manifest" />;
 	}
@@ -143,8 +146,6 @@ function DisplayGenerateManifestState() {
 
 function DisplayUploadState() {
 	const uploadState = useUploadOutputStatus();
-
-	if (!uploadState) return <></>;
 
 	if (uploadState.status === 'pending') {
 		return <Spinner label="Uploading source code" />;
@@ -261,9 +262,7 @@ function SetFunction(props: {onSubmit: (name: string) => void}) {
 function SetOverride(props: {onSubmit: (override: true) => void}) {
 	return (
 		<Box>
-			<Spinner
-				label={`Convect function already exists. Doing this will create a new version of your function. Would you like to proceed? `}
-			/>
+			<Spinner label="Convect function already exists. Doing this will create a new version of your function. Would you like to proceed? " />
 			<TextInput
 				onSubmit={v => {
 					if (v.toLowerCase() === 'y') {
