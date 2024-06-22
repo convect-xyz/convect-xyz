@@ -30,5 +30,5 @@ export function useGenerateManifestStatus() {
 		filters: {
 			mutationKey,
 		},
-	})[0];
+	}).at(0);
 }

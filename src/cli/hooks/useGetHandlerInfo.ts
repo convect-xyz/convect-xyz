@@ -16,5 +16,5 @@ export function useGetHandlerInfoStatus() {
 		filters: {
 			mutationKey,
 		},
-	})[0];
+	}).at(0);
 }

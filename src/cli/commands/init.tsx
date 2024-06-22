@@ -97,6 +97,8 @@ function DisplayFunction() {
 function DisplayHandlerInfo() {
 	const handlerState = useGetHandlerInfoStatus();
 
+	if (!handlerState) return <></>;
+
 	if (handlerState.status === 'pending') {
 		return <Spinner label="Getting handler information" />;
 	}
@@ -115,6 +117,8 @@ function DisplayHandlerInfo() {
 function DisplayBundleState() {
 	const bundleState = useTriggerBundleStatus();
 
+	if (!bundleState) return <></>;
+
 	if (bundleState.status === 'pending') {
 		return <Spinner label="Bundling source code" />;
 	}
@@ -130,6 +134,8 @@ function DisplayBundleState() {
 
 function DisplayGenerateManifestState() {
 	const generateState = useGenerateManifestStatus();
+
+	if (!generateState) return <></>;
 
 	if (generateState.status === 'pending') {
 		return <Spinner label="Generating manifest" />;
