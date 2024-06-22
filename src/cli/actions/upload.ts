@@ -7,20 +7,17 @@ type UploadOutputsOptions =
 			mode: 'init';
 			outfile: string;
 			outmanifest: string;
-			project: string;
-			handlerName: string;
+			id: string;
 			override: boolean;
-			chain: string;
 	  }
 	| {
 			mode: 'update';
-			project: string;
-			handlerName: string;
+			id: string;
 			outfile: string;
 	  };
 
 export async function uploadOutputs(options: UploadOutputsOptions) {
-	const {outfile, project, handlerName} = options;
+	const {outfile, id} = options;
 
 	const apiKey = process.env['CONVECT_API_KEY'];
 	if (!apiKey) {
@@ -31,13 +28,11 @@ export async function uploadOutputs(options: UploadOutputsOptions) {
 
 	const bodyFormData = new FormData();
 	bodyFormData.append('mode', options.mode);
-	bodyFormData.append('project', project);
-	bodyFormData.append('handlerName', handlerName);
+	bodyFormData.append('id', id);
 	bodyFormData.append('handler', fs.createReadStream(outfile));
 	if (options.mode === 'init') {
 		bodyFormData.append('manifest', fs.createReadStream(options.outmanifest));
 		bodyFormData.append('override', options.override.toString());
-		bodyFormData.append('node', options.chain);
 	}
 
 	try {

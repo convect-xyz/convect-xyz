@@ -3,6 +3,7 @@ import {transaction} from './transaction';
 type IngestOptions<
 	TTransactions extends Array<ReturnType<typeof transaction>>,
 > = {
+	id: string;
 	handlers: TTransactions;
 };
 

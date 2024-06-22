@@ -1,8 +1,13 @@
-import {Spinner, StatusMessage, TextInput} from '@inkjs/ui';
+import {Select, Spinner, StatusMessage} from '@inkjs/ui';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {Box} from 'ink';
-import React, {useState} from 'react';
+import React from 'react';
 import {z} from 'zod';
+import {create} from 'zustand';
+import {getHandlerInfo} from '../actions/getHandlerInfo.js';
+import {useConvectFiles} from '../hooks/useConvectFiles.js';
+import {useGenerateManifest} from '../hooks/useGenerateManifest.js';
+import {useGetHandlerInfo} from '../hooks/useGetHandlerInfo.js';
 import {
 	useTriggerBundle,
 	useTriggerBundleStatus,
@@ -12,7 +17,7 @@ import {
 	useUploadOutputStatus,
 } from '../hooks/useUploadOutput.js';
 
-export const args = z.tuple([z.string()]);
+export const args = z.tuple([]);
 
 type Props = {
 	args: z.infer<typeof args>;
@@ -20,72 +25,104 @@ type Props = {
 
 const queryClient = new QueryClient();
 
+type UpdateState = {
+	currentState?: 'function';
+	handler?: Awaited<ReturnType<typeof getHandlerInfo>>;
+	function?: string;
+};
+
+const useUpdateState = create<UpdateState>(set => ({
+	currentState: 'function',
+}));
+
 export default function Update(props: Props) {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<Content {...props} />
+			<Content />
 		</QueryClientProvider>
 	);
 }
 
-function Content(props: Props) {
-	const [project, handlerName] = props.args[0].split('/');
-	const [entrypoint, setEntrypoint] = useState<string>();
-
-	const {mutateAsync: triggerUpload} = useUploadOutput();
-
-	const {mutateAsync: triggerBundle} = useTriggerBundle({
-		onSuccess(data) {
-			if (!project) throw new Error('No Project');
-			if (!handlerName) throw new Error('No Handler');
-			triggerUpload({
-				mode: 'update',
-				project,
-				handlerName,
-				outfile: data.outfile,
-			}).catch(() => {});
-		},
-	});
-
+function Content() {
 	return (
 		<>
-			<SetEntrypoint
-				handlerName={handlerName}
-				entrypoint={entrypoint}
-				onSubmit={v => {
-					setEntrypoint(v);
-					triggerBundle({
-						entrypoint: v,
-					}).catch(() => {});
-				}}
-			/>
+			<DisplayFunction />
+			<CurrentInput />
 			<BundleState />
 			<UploadState />
 		</>
 	);
 }
 
-function SetEntrypoint(props: {
-	entrypoint?: string;
-	handlerName?: string;
-	onSubmit: (entrypoint: string) => void;
-}) {
-	if (!props.handlerName) return null;
+function DisplayFunction() {
+	const state = useUpdateState();
 
-	if (props.entrypoint) {
+	if (state.function) {
 		return (
 			<StatusMessage variant="success">
-				Entrypoint: {props.entrypoint}
+				Function: {state.function}
 			</StatusMessage>
 		);
 	}
 
+	return <></>;
+}
+
+function CurrentInput() {
+	const state = useUpdateState();
+
+	const {mutateAsync: getHandlerInfo} = useGetHandlerInfo();
+	const {mutateAsync: generateManifest} = useGenerateManifest();
+	const {mutateAsync: triggerUpload} = useUploadOutput();
+	const {mutateAsync: triggerBundle} = useTriggerBundle();
+
+	if (state.currentState === 'function') {
+		return (
+			<SetFunction
+				onSubmit={async fn => {
+					useUpdateState.setState({
+						currentState: undefined,
+						function: fn,
+					});
+
+					const {id, pipeline, outfile, outmanifest} = await triggerBundle({
+						entrypoint: fn,
+					});
+
+					const handler = await getHandlerInfo(id);
+					useUpdateState.setState({
+						handler,
+					});
+
+					await generateManifest({
+						pipeline,
+						outmanifest,
+						chainId: handler.chainId,
+					});
+					await triggerUpload({
+						id,
+						mode: 'update',
+						outfile: outfile,
+					});
+				}}
+			/>
+		);
+	}
+
+	return <></>;
+}
+
+function SetFunction(props: {onSubmit: (name: string) => void}) {
+	const {data: convectFiles} = useConvectFiles();
+
 	return (
 		<Box>
-			<Spinner label="Handler path: " />
-			<TextInput
-				onSubmit={props.onSubmit}
-				placeholder="Tell us the path to your ingestion handler"
+			<Spinner label="Select function: " />
+			<Select
+				options={
+					convectFiles?.map(fn => ({label: fn.rel, value: fn.abs})) ?? []
+				}
+				onChange={v => props.onSubmit(v)}
 			/>
 		</Box>
 	);

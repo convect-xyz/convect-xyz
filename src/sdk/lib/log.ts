@@ -1,9 +1,5 @@
 import {AbiEvent, parseAbiItem} from 'abitype';
-import {
-	Signature,
-	Signatures,
-} from 'abitype/dist/types/human-readable/types/signatures';
-import {Address, Narrow, encodeEventTopics} from 'viem';
+import {Address, encodeEventTopics} from 'viem';
 
 type Error<T extends string | string[]> = T extends string
 	? [`Error: ${T}`]
@@ -15,21 +11,7 @@ type Error<T extends string | string[]> = T extends string
 
 export type S<
 	TSignature extends string | readonly string[] | readonly unknown[],
-> = Narrow<TSignature> &
-	(
-		| (TSignature extends string
-				? string extends TSignature
-					? unknown
-					: Signature<TSignature>
-				: never)
-		| (TSignature extends readonly string[]
-				? TSignature extends readonly []
-					? Error<'At least one signature required.'>
-					: string[] extends TSignature
-					? unknown
-					: Signatures<TSignature>
-				: never)
-	);
+> = Parameters<typeof parseAbiItem<TSignature>>[0];
 
 export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 	private _topics: string[];
