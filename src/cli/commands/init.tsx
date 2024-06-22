@@ -153,6 +153,8 @@ function DisplayGenerateManifestState() {
 function DisplayUploadState() {
 	const uploadState = useUploadOutputStatus();
 
+	if (!uploadState) return <></>;
+
 	if (uploadState.status === 'pending') {
 		return <Spinner label="Uploading source code" />;
 	}
