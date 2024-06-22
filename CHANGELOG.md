@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.9
+
+### Patch Changes
+
+- 97d7d29: fix undefined error for status updates
+
 ## 0.0.8
 
 ### Patch Changes
