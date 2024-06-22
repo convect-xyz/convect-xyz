@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.10
+
+### Patch Changes
+
+- 6da6cb9: fix more undefined errors
+
 ## 0.0.9
 
 ### Patch Changes
