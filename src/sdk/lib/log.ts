@@ -40,7 +40,7 @@ export function log<
 >(options: {origin: TAddress} & TAbiEvent) {
 	const {signature, abi, origin, eventName} = options;
 	const parsedSignature =
-		typeof signature === undefined
+		signature === undefined
 			? abi?.find(v => v.type === 'event' && v.name === eventName)!
 			: parseAbiItem(signature as any);
 
