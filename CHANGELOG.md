@@ -1,5 +1,12 @@
 # convect-xyz
 
+## 0.0.8
+
+### Patch Changes
+
+- 7589b07: support abitype
+- 0736bf3: Add loading states for getting handler information
+
 ## 0.0.7
 
 ### Patch Changes
