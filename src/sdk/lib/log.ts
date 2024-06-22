@@ -1,17 +1,11 @@
-import {AbiEvent, parseAbiItem} from 'abitype';
+import {
+	Abi,
+	AbiEvent,
+	ExtractAbiEvent,
+	ParseAbiItem,
+	parseAbiItem,
+} from 'abitype';
 import {Address, encodeEventTopics} from 'viem';
-
-type Error<T extends string | string[]> = T extends string
-	? [`Error: ${T}`]
-	: {
-			[K in keyof T]: T[K] extends infer Message extends string
-				? `Error: ${Message}`
-				: never;
-	  };
-
-export type S<
-	TSignature extends string | readonly string[] | readonly unknown[],
-> = Parameters<typeof parseAbiItem<TSignature>>[0];
 
 export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 	private _topics: string[];
@@ -31,18 +25,45 @@ export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 }
 
 export function log<
-	const TSignature extends string | readonly string[] | readonly unknown[],
+	const TAbiEvent extends
+		| {
+				signature: string | readonly string[] | readonly unknown[];
+				abi?: never;
+				eventName?: never;
+		  }
+		| {
+				signature?: never;
+				abi: Abi;
+				eventName: string;
+		  },
 	const TAddress extends Address | Record<number, Address>,
->(options: {signature: S<TSignature>; origin: TAddress}) {
-	const parsedSignature = parseAbiItem(options.signature);
+>(options: {origin: TAddress} & TAbiEvent) {
+	const {signature, abi, origin, eventName} = options;
+	const parsedSignature =
+		typeof signature === undefined
+			? abi?.find(v => v.type === 'event' && v.name === eventName)!
+			: parseAbiItem(signature as any);
+
 	if (parsedSignature.type !== 'event') {
 		throw new Error('Only events are supported');
 	}
 
 	return new Log<
-		typeof parsedSignature extends AbiEvent ? typeof parsedSignature : any
+		TAbiEvent extends {
+			signature?: never;
+			abi: Abi;
+			eventName: string;
+		}
+			? ExtractAbiEvent<TAbiEvent['abi'], TAbiEvent['eventName']>
+			: TAbiEvent extends {
+					signature: string | readonly string[] | readonly unknown[];
+					abi?: never;
+					eventName?: never;
+			  }
+			? ParseAbiItem<TAbiEvent['signature']>
+			: any
 	>({
-		event: parsedSignature,
-		origin: options.origin,
+		event: parsedSignature as any,
+		origin,
 	});
 }
