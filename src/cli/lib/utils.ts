@@ -1,10 +1,7 @@
+import crypto from 'crypto';
+
 export async function hashFileName(fileName: string) {
-	return Array.from(
-		new Uint8Array(
-			await crypto.subtle.digest('SHA-1', new TextEncoder().encode(fileName)),
-		),
-		byte => byte.toString(16).padStart(2, '0'),
-	).join('');
+	return crypto.createHash('sha256').update(fileName).digest('hex');
 }
 
 export function getAuthHeaders() {

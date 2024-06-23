@@ -41,7 +41,7 @@ export function log<
 	const {signature, abi, origin, eventName} = options;
 	const parsedSignature =
 		signature === undefined
-			? abi?.find(v => v.type === 'event' && v.name === eventName)!
+			? abi.find(v => v.type === 'event' && v.name === eventName)!
 			: parseAbiItem(signature as any);
 
 	if (parsedSignature.type !== 'event') {
