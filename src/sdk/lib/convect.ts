@@ -1,14 +1,14 @@
 import {transaction} from './transaction';
 
-type IngestOptions<
+type ConvectOptions<
 	TTransactions extends Array<ReturnType<typeof transaction>>,
 > = {
 	id: string;
 	handlers: TTransactions;
 };
 
-export function ingest<
+export function convect<
 	TTransactions extends Array<ReturnType<typeof transaction>>,
->(options: IngestOptions<TTransactions>) {
+>(options: ConvectOptions<TTransactions>) {
 	return options;
 }
