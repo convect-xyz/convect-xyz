@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.12
+
+### Patch Changes
+
+- 58cb175: use native crypto module for file name hashing
+
 ## 0.0.11
 
 ### Patch Changes
