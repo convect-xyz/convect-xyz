@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.13
+
+### Patch Changes
+
+- 3d9e7f8: rename `ingest` API to `convect`
+
 ## 0.0.12
 
 ### Patch Changes
