@@ -2,7 +2,9 @@ import {AbiEvent} from 'abitype';
 import {Address, Log as ViemLog} from 'viem';
 import {Log} from './log';
 
-type InferLogs<TLogs> = TLogs extends [Log<infer U>, ...infer Rest]
+type InferLogs<TLogs> = TLogs extends
+	| [Log<infer U>, ...infer Rest]
+	| readonly [Log<infer U>, ...infer Rest]
 	? U extends AbiEvent
 		? ViemLog<bigint, number, false, U, true> | InferLogs<Rest>
 		: never
@@ -14,7 +16,7 @@ export type InferTransaction<TLogs> = {
 	logs: InferLogs<TLogs>[];
 };
 
-export class Transaction<const TLogs extends Array<any>, THandler> {
+export class Transaction<const TLogs extends Array<Log<any>>, THandler> {
 	private _logs: TLogs;
 	private _handler: THandler;
 	private _logMap: Map<string, any>;
@@ -25,22 +27,30 @@ export class Transaction<const TLogs extends Array<any>, THandler> {
 		this._handler = options.handler;
 		this._startBlock = options.startBlock ?? BigInt(0);
 		this._logMap = this._logs.reduce((acc, curr) => {
-			acc.set(curr._topics.at(0), curr);
+			acc.set((curr as any)._topics.at(0), curr);
 			return acc;
 		}, new Map<string, any>());
 	}
 }
 
-type TransactionContext = {
+export type HandlerContext = {
 	chainId: number;
 };
+
+type TransactionOptions<
+	TLogs extends Array<Log<any>>,
+	THandler extends (
+		transactions: Array<InferTransaction<TLogs>>,
+		ctx: HandlerContext,
+	) => Promise<void>,
+> = {logs: TLogs; handler: THandler; startBlock?: bigint};
 
 export function transaction<
 	const TLogs extends Array<any>,
 	THandler extends (
-		v: Array<InferTransaction<TLogs>>,
-		ctx: TransactionContext,
+		transactions: Array<InferTransaction<TLogs>>,
+		ctx: HandlerContext,
 	) => Promise<void>,
->(v: {logs: TLogs; handler: THandler; startBlock?: bigint}) {
-	return new Transaction<TLogs, THandler>(v);
+>(options: TransactionOptions<TLogs, THandler>) {
+	return new Transaction<TLogs, THandler>(options);
 }

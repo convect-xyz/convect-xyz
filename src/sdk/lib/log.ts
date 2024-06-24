@@ -7,6 +7,18 @@ import {
 } from 'abitype';
 import {Address, encodeEventTopics} from 'viem';
 
+type AbiBasedEvent = {
+	signature?: never;
+	abi: Abi;
+	eventName: string;
+};
+
+type SignatureBasedEvent = {
+	signature: string | readonly string[] | readonly unknown[];
+	abi?: never;
+	eventName?: never;
+};
+
 export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 	private _topics: string[];
 	private _event: TAbiEvent;
@@ -25,17 +37,7 @@ export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
 }
 
 export function log<
-	const TAbiEvent extends
-		| {
-				signature: string | readonly string[] | readonly unknown[];
-				abi?: never;
-				eventName?: never;
-		  }
-		| {
-				signature?: never;
-				abi: Abi;
-				eventName: string;
-		  },
+	const TAbiEvent extends AbiBasedEvent | SignatureBasedEvent,
 	const TAddress extends Address | Record<number, Address>,
 >(options: {origin: TAddress} & TAbiEvent) {
 	const {signature, abi, origin, eventName} = options;
@@ -49,17 +51,9 @@ export function log<
 	}
 
 	return new Log<
-		TAbiEvent extends {
-			signature?: never;
-			abi: Abi;
-			eventName: string;
-		}
+		TAbiEvent extends AbiBasedEvent
 			? ExtractAbiEvent<TAbiEvent['abi'], TAbiEvent['eventName']>
-			: TAbiEvent extends {
-					signature: string | readonly string[] | readonly unknown[];
-					abi?: never;
-					eventName?: never;
-			  }
+			: TAbiEvent extends SignatureBasedEvent
 			? ParseAbiItem<TAbiEvent['signature']>
 			: any
 	>({
