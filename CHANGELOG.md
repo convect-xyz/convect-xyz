@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.14
+
+### Patch Changes
+
+- 5df188e: improve typing
+
 ## 0.0.13
 
 ### Patch Changes
