@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.15
+
+### Patch Changes
+
+- 99e4391: fix update function errors
+
 ## 0.0.14
 
 ### Patch Changes
