@@ -131,6 +131,8 @@ function SetFunction(props: {onSubmit: (name: string) => void}) {
 function BundleState() {
 	const bundleState = useTriggerBundleStatus();
 
+	if (!bundleState) return <></>;
+
 	if (bundleState.status === 'pending') {
 		return <Spinner label="Bundling source code" />;
 	}
@@ -146,6 +148,8 @@ function BundleState() {
 
 function UploadState() {
 	const uploadState = useUploadOutputStatus();
+
+	if (!uploadState) return <></>;
 
 	if (uploadState.status === 'pending') {
 		return <Spinner label="Uploading source code" />;
