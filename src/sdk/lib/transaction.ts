@@ -16,7 +16,10 @@ export type InferTransaction<TLogs> = {
 	logs: InferLogs<TLogs>[];
 };
 
-export class Transaction<const TLogs extends Array<Log<any>>, THandler> {
+export class Transaction<
+	const TLogs extends Log<any>[] | readonly Log<any>[],
+	THandler,
+> {
 	private _logs: TLogs;
 	private _handler: THandler;
 	private _logMap: Map<string, any>;
@@ -26,10 +29,11 @@ export class Transaction<const TLogs extends Array<Log<any>>, THandler> {
 		this._logs = options.logs;
 		this._handler = options.handler;
 		this._startBlock = options.startBlock ?? BigInt(0);
-		this._logMap = this._logs.reduce((acc, curr) => {
-			acc.set((curr as any)._topics.at(0), curr);
-			return acc;
-		}, new Map<string, any>());
+		this._logMap = new Map<string, any>();
+
+		for (const log of this._logs) {
+			this._logMap.set((log as any)._topics.at(0), log);
+		}
 	}
 }
 
@@ -38,7 +42,7 @@ export type HandlerContext = {
 };
 
 type TransactionOptions<
-	TLogs extends Array<Log<any>>,
+	TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler extends (
 		transactions: Array<InferTransaction<TLogs>>,
 		ctx: HandlerContext,
@@ -46,7 +50,7 @@ type TransactionOptions<
 > = {logs: TLogs; handler: THandler; startBlock?: bigint};
 
 export function transaction<
-	const TLogs extends Array<any>,
+	const TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler extends (
 		transactions: Array<InferTransaction<TLogs>>,
 		ctx: HandlerContext,
