@@ -138,11 +138,11 @@ function CurrentInput(props: Props) {
 						function: fn,
 					});
 
-					const {id, pipeline, outfile, outmanifest} = await triggerBundle({
+					const {pipeline, outfile, outmanifest} = await triggerBundle({
 						entrypoint: fn,
 					});
 
-					const handler = await getHandlerInfo(id);
+					const handler = await getHandlerInfo(props.options.select);
 					useUpdateState.setState({
 						handler,
 						pipeline,

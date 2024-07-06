@@ -27,5 +27,5 @@ export async function bundleFile(options: BundleFileOptions) {
 		default: {default: pipeline},
 	} = await import(path.join(process.cwd(), outfile));
 
-	return {outfile, outmanifest, pipeline, id: pipeline.id};
+	return {outfile, outmanifest, pipeline};
 }
