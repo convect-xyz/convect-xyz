@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.16
+
+### Patch Changes
+
+- 9b9ee82: support handlers
+
 ## 0.0.15
 
 ### Patch Changes
