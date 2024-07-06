@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.17
+
+### Patch Changes
+
+- b24cee6: add changeset for eth sepolia
+
 ## 0.0.16
 
 ### Patch Changes
