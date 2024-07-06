@@ -1,3 +1,4 @@
+import {QueryClient} from '@tanstack/react-query';
 import crypto from 'crypto';
 
 export async function hashFileName(fileName: string) {
@@ -15,4 +16,8 @@ export function getAuthHeaders() {
 	return {
 		Authorization: `Bearer ${apiKey}`,
 	};
+}
+
+export function getQueryClient() {
+	return new QueryClient();
 }

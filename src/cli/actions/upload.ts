@@ -9,6 +9,7 @@ type UploadOutputsOptions =
 			outmanifest: string;
 			id: string;
 			override: boolean;
+			producerId: number;
 	  }
 	| {
 			mode: 'update';
@@ -33,6 +34,7 @@ export async function uploadOutputs(options: UploadOutputsOptions) {
 	if (options.mode === 'init') {
 		bodyFormData.append('manifest', fs.createReadStream(options.outmanifest));
 		bodyFormData.append('override', options.override.toString());
+		bodyFormData.append('producerId', options.producerId);
 	}
 
 	try {

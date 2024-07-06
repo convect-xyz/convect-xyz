@@ -6,6 +6,7 @@ export type GenerateManifestOptions = {
 	outmanifest: string;
 	chainId: number;
 };
+
 export async function generateManifest(options: GenerateManifestOptions) {
 	const {pipeline, outmanifest, chainId} = options;
 
@@ -55,4 +56,6 @@ export async function generateManifest(options: GenerateManifestOptions) {
 	}
 
 	fs.writeFileSync(outmanifest, JSON.stringify(manifest));
+
+	return manifest;
 }

@@ -1,9 +1,10 @@
+import {custom} from './chains';
 import {transaction} from './transaction';
 
 type ConvectOptions<
 	TTransactions extends Array<ReturnType<typeof transaction>>,
 > = {
-	id: string;
+	chains: Array<ReturnType<typeof custom>>;
 	handlers: TTransactions;
 };
 

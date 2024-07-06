@@ -1,6 +1,7 @@
 import {Select, Spinner, StatusMessage, TextInput} from '@inkjs/ui';
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {QueryClientProvider} from '@tanstack/react-query';
 import {Box} from 'ink';
+import {option} from 'pastel';
 import React from 'react';
 import {z} from 'zod';
 import {create} from 'zustand';
@@ -14,6 +15,7 @@ import {
 	useGetHandlerInfo,
 	useGetHandlerInfoStatus,
 } from '../hooks/useGetHandlerInfo.js';
+import {useProducers} from '../hooks/useProducers.js';
 import {
 	useTriggerBundle,
 	useTriggerBundleStatus,
@@ -22,20 +24,32 @@ import {
 	useUploadOutput,
 	useUploadOutputStatus,
 } from '../hooks/useUploadOutput.js';
+import {getQueryClient} from '../lib/utils.js';
 
-export const args = z.tuple([]);
+export const options = z.object({
+	select: z.string().describe(
+		option({
+			description: 'Selected Convect Function',
+			alias: 's',
+		}),
+	),
+});
 
 type Props = {
-	args: z.infer<typeof args>;
+	options: z.infer<typeof options>;
 };
 
-const queryClient = new QueryClient();
-
 type InitState = {
-	currentState?: 'function' | 'override';
+	currentState: 'function' | 'chain' | 'override';
 	handler?: Awaited<ReturnType<typeof getHandlerInfo>>;
+	manifest?: any;
+	outfile?: string;
+	outmanifest?: string;
+	pipeline?: any;
 	override?: boolean;
 	function?: string;
+	producerId?: number;
+	chainId?: number;
 };
 
 const useInitState = create<InitState>(set => ({
@@ -44,13 +58,13 @@ const useInitState = create<InitState>(set => ({
 
 export default function Init(props: Props) {
 	return (
-		<QueryClientProvider client={queryClient}>
+		<QueryClientProvider client={getQueryClient()}>
 			<Content {...props} />
 		</QueryClientProvider>
 	);
 }
 
-function Content(_: Props) {
+function Content(props: Props) {
 	return (
 		<>
 			<DisplayFunction />
@@ -60,7 +74,7 @@ function Content(_: Props) {
 			<DisplayGenerateManifestState />
 			<DisplayUploadState />
 
-			<CurrentInput />
+			<CurrentInput {...props} />
 		</>
 	);
 }
@@ -71,7 +85,7 @@ function DisplayOverride() {
 	if (state.override) {
 		return (
 			<StatusMessage variant="success">
-				Convect function already exists. Doing this will create a new version of
+				Convect Function already exists. Doing this will create a new version of
 				your function. Would you like to proceed? y
 			</StatusMessage>
 		);
@@ -106,7 +120,7 @@ function DisplayHandlerInfo() {
 	if (handlerState.status === 'success' && handlerState.data) {
 		return (
 			<StatusMessage variant="success">
-				Handler Name: {handlerState.data.handlerName}
+				Function Name: {handlerState.data.functionName}
 			</StatusMessage>
 		);
 	}
@@ -172,13 +186,13 @@ function DisplayUploadState() {
 	);
 }
 
-function CurrentInput() {
+function CurrentInput(props: Props) {
 	const state = useInitState();
 
-	const {data: handlerData, mutateAsync: getHandlerInfo} = useGetHandlerInfo();
+	const {mutateAsync: getHandlerInfo} = useGetHandlerInfo();
 	const {mutateAsync: generateManifest} = useGenerateManifest();
 	const {mutateAsync: triggerUpload} = useUploadOutput();
-	const {data: bundleData, mutateAsync: triggerBundle} = useTriggerBundle();
+	const {mutateAsync: triggerBundle} = useTriggerBundle();
 
 	if (state.currentState === 'function') {
 		return (
@@ -189,36 +203,59 @@ function CurrentInput() {
 						function: fn,
 					});
 
-					const {id, pipeline, outfile, outmanifest} = await triggerBundle({
+					const {pipeline, outfile, outmanifest} = await triggerBundle({
 						entrypoint: fn,
 					});
-					const handler = await getHandlerInfo(id);
+					const handler = await getHandlerInfo(props.options.select);
 
-					// Handler has not been initialised
-					if (handler.handlerVersion < 0) {
-						useInitState.setState({
-							handler,
-							override: false,
-						});
+					useInitState.setState({
+						handler,
+						pipeline,
+						outfile,
+						outmanifest,
+						override: false,
+						currentState: 'chain',
+					});
+				}}
+			/>
+		);
+	}
 
-						await generateManifest({
-							pipeline,
-							outmanifest,
-							chainId: handler.chainId,
-						});
-						await triggerUpload({
-							id,
-							mode: 'init',
-							outfile: outfile,
-							outmanifest,
-							override: false,
-						});
-					} else {
-						useInitState.setState({
-							handler,
+	if (state.currentState === 'chain') {
+		return (
+			<SelectChain
+				onSubmit={async (producerId, chainId) => {
+					useInitState.setState({
+						currentState: undefined,
+						producerId,
+						chainId,
+					});
+
+					const producer = state.handler?.chains.find(
+						c => c.producer.id === producerId,
+					);
+
+					// Function has been initialised (we need confirmation)
+					if (producer) {
+						return useInitState.setState({
 							currentState: 'override',
 						});
 					}
+
+					await generateManifest({
+						pipeline: state.pipeline,
+						outmanifest: state.outmanifest!,
+						chainId,
+					});
+
+					await triggerUpload({
+						mode: 'init',
+						outfile: state.outfile!,
+						id: props.options.select,
+						outmanifest: state.outmanifest!,
+						override: false,
+						producerId,
+					});
 				}}
 			/>
 		);
@@ -227,21 +264,29 @@ function CurrentInput() {
 	if (state.currentState === 'override') {
 		return (
 			<SetOverride
-				onSubmit={async _ => {
+				onSubmit={async override => {
+					if (!override) {
+						return useInitState.setState({
+							currentState: undefined,
+							override: false,
+						});
+					}
+
 					useInitState.setState({currentState: undefined, override: true});
 
 					await generateManifest({
-						pipeline: bundleData!.pipeline,
-						outmanifest: bundleData!.outmanifest,
-						chainId: handlerData!.chainId,
+						pipeline: state.pipeline,
+						outmanifest: state.outmanifest!,
+						chainId: state.chainId!,
 					});
 
 					await triggerUpload({
-						id: handlerData!.id,
 						mode: 'init',
-						outfile: bundleData!.outfile,
-						outmanifest: bundleData!.outmanifest,
-						override: true,
+						outfile: state.outfile!,
+						id: props.options.select,
+						outmanifest: state.outmanifest!,
+						override: false,
+						producerId: state.producerId!,
 					});
 				}}
 			/>
@@ -267,17 +312,43 @@ function SetFunction(props: {onSubmit: (name: string) => void}) {
 	);
 }
 
-function SetOverride(props: {onSubmit: (override: true) => void}) {
+function SelectChain(props: {
+	onSubmit: (producerId: number, chainId: number) => void;
+}) {
+	const state = useInitState();
+	const {data} = useProducers(state.pipeline.chains);
+
+	if (!data) {
+		return <></>;
+	}
+
+	return (
+		<Box>
+			<Spinner label="Select chain: " />
+			<Select
+				options={
+					data.producers?.map(c => ({
+						label: c.name,
+						value: c.id.toString(),
+					})) ?? []
+				}
+				onChange={value => {
+					const producerId = Number(value);
+					const producer = data.producers.find(c => c.id === producerId)!;
+					props.onSubmit(producer.id, producer.chainId);
+				}}
+			/>
+		</Box>
+	);
+}
+
+function SetOverride(props: {onSubmit: (override: boolean) => void}) {
 	return (
 		<Box>
 			<Spinner label="Convect function already exists. Doing this will create a new version of your function. Would you like to proceed? " />
 			<TextInput
 				onSubmit={v => {
-					if (v.toLowerCase() === 'y') {
-						props.onSubmit(true);
-					} else {
-						process.exit(0);
-					}
+					props.onSubmit(v.toLowerCase() === 'y');
 				}}
 				placeholder="y/n"
 			/>
