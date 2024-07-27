@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.20
+
+### Patch Changes
+
+- 3ed99c1: Find convect function based on convect configs
+
 ## 0.0.19
 
 ### Patch Changes
