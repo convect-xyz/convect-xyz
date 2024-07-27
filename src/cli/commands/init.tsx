@@ -2,11 +2,10 @@ import {Select, Spinner, StatusMessage, TextInput} from '@inkjs/ui';
 import {QueryClientProvider} from '@tanstack/react-query';
 import {Box} from 'ink';
 import {option} from 'pastel';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {z} from 'zod';
 import {create} from 'zustand';
 import {getHandlerInfo} from '../actions/getHandlerInfo.js';
-import {useConvectFiles} from '../hooks/useConvectFiles.js';
 import {
 	useGenerateManifest,
 	useGenerateManifestStatus,
@@ -15,6 +14,7 @@ import {
 	useGetHandlerInfo,
 	useGetHandlerInfoStatus,
 } from '../hooks/useGetHandlerInfo.js';
+import {useLoadConfig} from '../hooks/useLoadConfig.js';
 import {useProducers} from '../hooks/useProducers.js';
 import {
 	useTriggerBundle,
@@ -24,6 +24,7 @@ import {
 	useUploadOutput,
 	useUploadOutputStatus,
 } from '../hooks/useUploadOutput.js';
+import {useValidateFunctionPath} from '../hooks/useValidateFunctionPath.js';
 import {getQueryClient} from '../lib/utils.js';
 
 export const options = z.object({
@@ -40,7 +41,7 @@ type Props = {
 };
 
 type InitState = {
-	currentState: 'function' | 'chain' | 'override';
+	currentState: 'findFunction' | 'selectChain' | 'confirmOverride';
 	handler?: Awaited<ReturnType<typeof getHandlerInfo>>;
 	manifest?: any;
 	outfile?: string;
@@ -52,8 +53,8 @@ type InitState = {
 	chainId?: number;
 };
 
-const useInitState = create<InitState>(set => ({
-	currentState: 'function',
+const useInitState = create<InitState>(() => ({
+	currentState: 'findFunction',
 }));
 
 export default function Init(props: Props) {
@@ -65,6 +66,16 @@ export default function Init(props: Props) {
 }
 
 function Content(props: Props) {
+	const {data: config, error} = useLoadConfig();
+
+	if (error) {
+		return <StatusMessage variant="error">{error.message}</StatusMessage>;
+	}
+
+	if (!config) {
+		return null;
+	}
+
 	return (
 		<>
 			<DisplayFunction />
@@ -74,7 +85,7 @@ function Content(props: Props) {
 			<DisplayGenerateManifestState />
 			<DisplayUploadState />
 
-			<CurrentInput {...props} />
+			<Controller {...props} />
 		</>
 	);
 }
@@ -186,7 +197,7 @@ function DisplayUploadState() {
 	);
 }
 
-function CurrentInput(props: Props) {
+function Controller(props: Props) {
 	const state = useInitState();
 
 	const {mutateAsync: getHandlerInfo} = useGetHandlerInfo();
@@ -194,9 +205,10 @@ function CurrentInput(props: Props) {
 	const {mutateAsync: triggerUpload} = useUploadOutput();
 	const {mutateAsync: triggerBundle} = useTriggerBundle();
 
-	if (state.currentState === 'function') {
+	if (state.currentState === 'findFunction') {
 		return (
-			<SetFunction
+			<FindFunction
+				{...props}
 				onSubmit={async fn => {
 					useInitState.setState({
 						currentState: undefined,
@@ -214,14 +226,14 @@ function CurrentInput(props: Props) {
 						outfile,
 						outmanifest,
 						override: false,
-						currentState: 'chain',
+						currentState: 'selectChain',
 					});
 				}}
 			/>
 		);
 	}
 
-	if (state.currentState === 'chain') {
+	if (state.currentState === 'selectChain') {
 		return (
 			<SelectChain
 				onSubmit={async (producerId, chainId) => {
@@ -235,10 +247,9 @@ function CurrentInput(props: Props) {
 						c => c.producer.id === producerId,
 					);
 
-					// Function has been initialised (we need confirmation)
 					if (producer) {
 						return useInitState.setState({
-							currentState: 'override',
+							currentState: 'confirmOverride',
 						});
 					}
 
@@ -261,7 +272,7 @@ function CurrentInput(props: Props) {
 		);
 	}
 
-	if (state.currentState === 'override') {
+	if (state.currentState === 'confirmOverride') {
 		return (
 			<SetOverride
 				onSubmit={async override => {
@@ -296,20 +307,24 @@ function CurrentInput(props: Props) {
 	return <></>;
 }
 
-function SetFunction(props: {onSubmit: (name: string) => void}) {
-	const {data: convectFiles} = useConvectFiles();
-
-	return (
-		<Box>
-			<Spinner label="Select function: " />
-			<Select
-				options={
-					convectFiles?.map(fn => ({label: fn.rel, value: fn.abs})) ?? []
-				}
-				onChange={v => props.onSubmit(v)}
-			/>
-		</Box>
+function FindFunction(props: {onSubmit: (name: string) => void} & Props) {
+	const {data: config} = useLoadConfig();
+	const {data: fullFnPath, error} = useValidateFunctionPath(
+		config!.convectBasePath,
+		props.options.select,
 	);
+
+	useEffect(() => {
+		if (fullFnPath) {
+			props.onSubmit(fullFnPath);
+		}
+	}, [fullFnPath]);
+
+	if (error) {
+		return <StatusMessage variant="error">{error.message}</StatusMessage>;
+	}
+
+	return <></>;
 }
 
 function SelectChain(props: {
@@ -347,9 +362,7 @@ function SetOverride(props: {onSubmit: (override: boolean) => void}) {
 		<Box>
 			<Spinner label="Convect function already exists. Doing this will create a new version of your function. Would you like to proceed? " />
 			<TextInput
-				onSubmit={v => {
-					props.onSubmit(v.toLowerCase() === 'y');
-				}}
+				onSubmit={v => props.onSubmit(v.toLowerCase() === 'y')}
 				placeholder="y/n"
 			/>
 		</Box>

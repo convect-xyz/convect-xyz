@@ -15,6 +15,7 @@ type UploadOutputsOptions =
 			mode: 'update';
 			id: string;
 			outfile: string;
+			producerId: number;
 	  };
 
 export async function uploadOutputs(options: UploadOutputsOptions) {
@@ -31,10 +32,11 @@ export async function uploadOutputs(options: UploadOutputsOptions) {
 	bodyFormData.append('mode', options.mode);
 	bodyFormData.append('id', id);
 	bodyFormData.append('handler', fs.createReadStream(outfile));
+	bodyFormData.append('producerId', options.producerId);
+
 	if (options.mode === 'init') {
 		bodyFormData.append('manifest', fs.createReadStream(options.outmanifest));
 		bodyFormData.append('override', options.override.toString());
-		bodyFormData.append('producerId', options.producerId);
 	}
 
 	try {

@@ -6,6 +6,7 @@
 		"outDir": "dist",
     "noPropertyAccessFromIndexSignature": false,  
     "esModuleInterop": true,  
+    "allowSyntheticDefaultImports": true
 	},
 	"include": ["src/cli"]
 }

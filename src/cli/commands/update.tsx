@@ -2,13 +2,13 @@ import {Select, Spinner, StatusMessage} from '@inkjs/ui';
 import {QueryClientProvider} from '@tanstack/react-query';
 import {Box} from 'ink';
 import {option} from 'pastel';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {z} from 'zod';
 import {create} from 'zustand';
 import {getHandlerInfo} from '../actions/getHandlerInfo.js';
-import {useConvectFiles} from '../hooks/useConvectFiles.js';
 import {useGenerateManifest} from '../hooks/useGenerateManifest.js';
 import {useGetHandlerInfo} from '../hooks/useGetHandlerInfo.js';
+import {useLoadConfig} from '../hooks/useLoadConfig.js';
 import {useProducers} from '../hooks/useProducers.js';
 import {
 	useTriggerBundle,
@@ -18,6 +18,7 @@ import {
 	useUploadOutput,
 	useUploadOutputStatus,
 } from '../hooks/useUploadOutput.js';
+import {useValidateFunctionPath} from '../hooks/useValidateFunctionPath.js';
 import {getQueryClient} from '../lib/utils.js';
 
 export const options = z.object({
@@ -34,7 +35,7 @@ type Props = {
 };
 
 type UpdateState = {
-	currentState?: 'function' | 'chain' | 'confirmation';
+	currentState?: 'findFunction' | 'selectChain' | 'confirmation';
 	handler?: Awaited<ReturnType<typeof getHandlerInfo>>;
 	function?: string;
 	manifest?: any;
@@ -44,8 +45,8 @@ type UpdateState = {
 	producerId?: number;
 };
 
-const useUpdateState = create<UpdateState>(set => ({
-	currentState: 'function',
+const useUpdateState = create<UpdateState>(() => ({
+	currentState: 'findFunction',
 }));
 
 export default function Update(props: Props) {
@@ -57,6 +58,16 @@ export default function Update(props: Props) {
 }
 
 function Content(props: Props) {
+	const {data: config, error} = useLoadConfig();
+
+	if (error) {
+		return <StatusMessage variant="error">{error.message}</StatusMessage>;
+	}
+
+	if (!config) {
+		return null;
+	}
+
 	return (
 		<>
 			<DisplayFunction />
@@ -129,9 +140,10 @@ function CurrentInput(props: Props) {
 	const {mutateAsync: triggerUpload} = useUploadOutput();
 	const {mutateAsync: triggerBundle} = useTriggerBundle();
 
-	if (state.currentState === 'function') {
+	if (state.currentState === 'findFunction') {
 		return (
-			<SetFunction
+			<FindFunction
+				{...props}
 				onSubmit={async fn => {
 					useUpdateState.setState({
 						currentState: undefined,
@@ -148,14 +160,14 @@ function CurrentInput(props: Props) {
 						pipeline,
 						outfile,
 						outmanifest,
-						currentState: 'chain',
+						currentState: 'selectChain',
 					});
 				}}
 			/>
 		);
 	}
 
-	if (state.currentState === 'chain') {
+	if (state.currentState === 'selectChain') {
 		return (
 			<SelectChain
 				onSubmit={async (producerId, chainId) => {
@@ -179,6 +191,7 @@ function CurrentInput(props: Props) {
 							mode: 'update',
 							outfile: state.outfile!,
 							id: props.options.select,
+							producerId,
 						});
 					}
 				}}
@@ -189,20 +202,20 @@ function CurrentInput(props: Props) {
 	return <></>;
 }
 
-function SetFunction(props: {onSubmit: (name: string) => void}) {
-	const {data: convectFiles} = useConvectFiles();
-
-	return (
-		<Box>
-			<Spinner label="Select function: " />
-			<Select
-				options={
-					convectFiles?.map(fn => ({label: fn.rel, value: fn.abs})) ?? []
-				}
-				onChange={v => props.onSubmit(v)}
-			/>
-		</Box>
+function FindFunction(props: {onSubmit: (name: string) => void} & Props) {
+	const {data: config} = useLoadConfig();
+	const {data: fullFnPath} = useValidateFunctionPath(
+		config!.convectBasePath,
+		props.options.select,
 	);
+
+	useEffect(() => {
+		if (fullFnPath) {
+			props.onSubmit(fullFnPath);
+		}
+	}, [fullFnPath]);
+
+	return <></>;
 }
 
 function SelectChain(props: {
