@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.21
+
+### Patch Changes
+
+- 0a1b827: support new manifest version
+
 ## 0.0.20
 
 ### Patch Changes
