@@ -1,14 +1,16 @@
 import fs from 'fs';
 import {encodeEventTopics} from 'viem';
+import {getProducers} from './getProducers.js';
 
 export type GenerateManifestOptions = {
 	pipeline: any;
 	outmanifest: string;
-	chainId: number;
 };
 
 export async function generateManifest(options: GenerateManifestOptions) {
-	const {pipeline, outmanifest, chainId} = options;
+	const {pipeline, outmanifest} = options;
+
+	const producers = await getProducers(pipeline.chains);
 
 	const allTxConfigs = pipeline.handlers as Array<any>;
 
@@ -17,6 +19,10 @@ export async function generateManifest(options: GenerateManifestOptions) {
 			start_block: v._startBlock.toString(),
 		})),
 		log_configs: [] as Array<any>,
+		chains: producers.producers.map(p => ({
+			chainId: p.chainId,
+			name: p.name,
+		})),
 	};
 
 	const allLogConfigs = allTxConfigs.map((txConfig: any, txConfigIdx) => [
@@ -29,15 +35,8 @@ export async function generateManifest(options: GenerateManifestOptions) {
 		for (const logConfig of logConfigs) {
 			let topics = encodeEventTopics({abi: [logConfig._event]});
 			let eventSignature = topics[0].substring(2);
-			let origin =
-				typeof logConfig._origin === 'string'
-					? logConfig._origin
-					: logConfig._origin[chainId];
-			if (!origin) {
-				throw new Error(`No contract address defined for chain id: ${chainId}`);
-			}
 
-			let identifier = eventSignature + '-' + origin;
+			let identifier = eventSignature + '-' + JSON.stringify(logConfig._origin);
 
 			if (seenLogConfigs.has(identifier)) {
 				manifest.log_configs[seenLogConfigs.get(identifier)!].tx_configs.push(
@@ -48,7 +47,7 @@ export async function generateManifest(options: GenerateManifestOptions) {
 
 			seenLogConfigs.set(identifier, manifest.log_configs.length);
 			manifest.log_configs.push({
-				address: origin,
+				address: logConfig._origin,
 				topics: [eventSignature],
 				tx_configs: [txConfigIdx],
 			});
