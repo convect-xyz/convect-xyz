@@ -1,6 +1,6 @@
 {
 	"name": "convect-xyz",
-	"version": "0.0.21",
+	"version": "0.0.22",
 	"license": "MIT",
 	"bin": "dist/cli/cli.js",
 	"main": "dist/sdk/index.js",
