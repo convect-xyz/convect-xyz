@@ -48,6 +48,7 @@ export async function generateManifest(options: GenerateManifestOptions) {
 			seenLogConfigs.set(identifier, manifest.log_configs.length);
 			manifest.log_configs.push({
 				address: logConfig._origin,
+				abi: logConfig._event,
 				topics: [eventSignature],
 				tx_configs: [txConfigIdx],
 			});
