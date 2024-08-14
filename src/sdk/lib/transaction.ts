@@ -23,12 +23,16 @@ export class Transaction<
 	private _logs: TLogs;
 	private _handler: THandler;
 	private _logMap: Map<string, any>;
-	private _startBlock: bigint;
+	private _startBlock: Record<string, number>;
 
-	constructor(options: {logs: TLogs; handler: THandler; startBlock?: bigint}) {
+	constructor(options: {
+		logs: TLogs;
+		handler: THandler;
+		startBlock?: Record<string, number>;
+	}) {
 		this._logs = options.logs;
 		this._handler = options.handler;
-		this._startBlock = options.startBlock ?? BigInt(0);
+		this._startBlock = options.startBlock ?? {};
 		this._logMap = new Map<string, any>();
 
 		for (const log of this._logs) {
@@ -47,7 +51,7 @@ type TransactionOptions<
 		transactions: Array<InferTransaction<TLogs>>,
 		ctx: HandlerContext,
 	) => Promise<void>,
-> = {logs: TLogs; handler: THandler; startBlock?: bigint};
+> = {logs: TLogs; handler: THandler; startBlock?: Record<string, number>};
 
 export function transaction<
 	const TLogs extends Log<any>[] | readonly Log<any>[],
