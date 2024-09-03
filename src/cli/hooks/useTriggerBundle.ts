@@ -22,7 +22,7 @@ export function useTriggerBundle(
 	});
 }
 
-export function useTriggerBundleStatus() {
+export function useTriggerBundleState() {
 	return useMutationState<ReturnType<typeof useTriggerBundle>>({
 		filters: {
 			mutationKey,

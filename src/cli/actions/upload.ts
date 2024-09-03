@@ -39,6 +39,6 @@ export async function uploadOutputs(options: UploadOutputsOptions) {
 	try {
 		await apiAxios.post('/api/cli/deployments', bodyFormData);
 	} catch (e: any) {
-		throw new Error(e.response?.data.message ?? 'An unexpected error occurred');
+		throw e;
 	}
 }

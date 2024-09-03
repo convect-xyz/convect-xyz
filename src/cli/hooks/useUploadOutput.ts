@@ -1,13 +1,24 @@
-import {useMutation, useMutationState} from '@tanstack/react-query';
+import {
+	useMutation,
+	UseMutationOptions,
+	useMutationState,
+} from '@tanstack/react-query';
 import {uploadOutputs} from '../actions/upload.js';
 
 const mutationKey = ['upload'];
 
-export function useUploadOutput() {
+export function useUploadOutput(
+	options?: UseMutationOptions<
+		Awaited<ReturnType<typeof uploadOutputs>>,
+		Error,
+		{}
+	>,
+) {
 	return useMutation({
 		mutationKey,
 		mutationFn: uploadOutputs,
 		throwOnError: false,
+		...(options ?? {}),
 	});
 }
 
