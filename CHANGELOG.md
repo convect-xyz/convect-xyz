@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.24
+
+### Patch Changes
+
+- 308ceea: support auth command
+
 ## 0.0.23
 
 ### Patch Changes
