@@ -34,6 +34,13 @@ async function startServer() {
 export async function waitForApiKey(server: http.Server) {
 	return new Promise<string>((resolve, reject) => {
 		server.on('request', (req, res) => {
+			res.setHeader('Access-Control-Allow-Origin', '*');
+			res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+			res.setHeader(
+				'Access-Control-Allow-Headers',
+				'Content-Type, Authorization',
+			);
+
 			if (req.method === 'OPTIONS') {
 				res.writeHead(200);
 				res.end();

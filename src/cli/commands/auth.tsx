@@ -18,7 +18,9 @@ export default function Auth(props: Props) {
 
 function Content(_: Props) {
 	const {data: serverConfig, error: authServerError} = useAuthServer();
-	const {data: isAuthenticated, error: authError} = useWaitForAuth();
+	const {data: isAuthenticated, error: authError} = useWaitForAuth(
+		serverConfig?.server,
+	);
 
 	if (authServerError || authError) {
 		return (
