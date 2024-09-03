@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.25
+
+### Patch Changes
+
+- 61ebed7: fix authentication bug
+
 ## 0.0.24
 
 ### Patch Changes
