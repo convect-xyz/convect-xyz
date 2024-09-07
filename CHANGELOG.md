@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.26
+
+### Patch Changes
+
+- 3e29b55: new utility types
+
 ## 0.0.25
 
 ### Patch Changes
