@@ -16,11 +16,14 @@ type InferLogs<TLogs> = TLogs extends
 		: never
 	: never;
 
-export type InferTransaction<TLogs> = {
-	from: Address;
-	to: Address;
-	logs: InferLogs<TLogs>[];
-};
+export type InferTransaction<TTransactionConfig> =
+	TTransactionConfig extends Transaction<infer TLogs, any>
+		? {
+				from: Address;
+				to: Address;
+				logs: InferLogs<TLogs>[];
+		  }
+		: never;
 
 export type InferTransactionLog<
 	TTransaction,
@@ -63,7 +66,11 @@ export type HandlerContext = {
 type TransactionOptions<
 	TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler extends (
-		transactions: Array<InferTransaction<TLogs>>,
+		transactions: Array<{
+			from: Address;
+			to: Address;
+			logs: InferLogs<TLogs>[];
+		}>,
 		ctx: HandlerContext,
 	) => Promise<void>,
 > = {logs: TLogs; handler: THandler; startBlock?: Record<string, number>};
@@ -71,7 +78,11 @@ type TransactionOptions<
 export function transaction<
 	const TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler extends (
-		transactions: Array<InferTransaction<TLogs>>,
+		transactions: Array<{
+			from: Address;
+			to: Address;
+			logs: InferLogs<TLogs>[];
+		}>,
 		ctx: HandlerContext,
 	) => Promise<void>,
 >(options: TransactionOptions<TLogs, THandler>) {
