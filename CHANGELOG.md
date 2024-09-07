@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.27
+
+### Patch Changes
+
+- 9e7db8b: introduce `InferTransaction`
+
 ## 0.0.26
 
 ### Patch Changes
