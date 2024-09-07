@@ -20,9 +20,9 @@ type SignatureBasedEvent = {
 };
 
 export class Log<const TAbiEvent extends AbiEvent = AbiEvent> {
-	private _topics: string[];
-	private _event: TAbiEvent;
-	private _origin: Address | Record<number, Address>;
+	_topics: string[];
+	_event: TAbiEvent;
+	_origin: Address | Record<number, Address>;
 
 	constructor(options: {
 		event: TAbiEvent;

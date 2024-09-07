@@ -2,6 +2,12 @@ import {AbiEvent} from 'abitype';
 import {Address, Log as ViemLog} from 'viem';
 import {Log} from './log';
 
+type InferLog<TLog> = TLog extends Log<infer U>
+	? U extends AbiEvent
+		? ViemLog<bigint, number, false, U, true>
+		: never
+	: never;
+
 type InferLogs<TLogs> = TLogs extends
 	| [Log<infer U>, ...infer Rest]
 	| readonly [Log<infer U>, ...infer Rest]
@@ -15,6 +21,15 @@ export type InferTransaction<TLogs> = {
 	to: Address;
 	logs: InferLogs<TLogs>[];
 };
+
+export type InferTransactionLog<
+	TTransaction,
+	TLogName extends string,
+> = TTransaction extends Transaction<infer TLogs, any>
+	? TLogs extends readonly Log<any>[] | Log<any>[]
+		? InferLog<Extract<TLogs[number], {_event: {name: TLogName}}>>
+		: never
+	: never;
 
 export class Transaction<
 	const TLogs extends Log<any>[] | readonly Log<any>[],
