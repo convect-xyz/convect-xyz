@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.28
+
+### Patch Changes
+
+- 169624a: Add support for abstract testnet
+
 ## 0.0.27
 
 ### Patch Changes
