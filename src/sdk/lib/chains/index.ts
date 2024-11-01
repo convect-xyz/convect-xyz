@@ -10,3 +10,4 @@ export const polygonMainnet = custom('polygon-mainnet');
 export const polygonAmoy = custom('polygon-amoy');
 export const baseMainnet = custom('base-mainnet');
 export const baseSepolia = custom('base-sepolia');
+export const abstractTestnet = custom('abstract-testnet');
