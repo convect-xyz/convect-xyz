@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.29
+
+### Patch Changes
+
+- e0f786b: Require transaction handler name
+
 ## 0.0.28
 
 ### Patch Changes
