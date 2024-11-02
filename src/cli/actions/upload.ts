@@ -18,14 +18,6 @@ type UploadOutputsOptions =
 
 export async function uploadOutputs(options: UploadOutputsOptions) {
 	const {outfile, id} = options;
-
-	const apiKey = process.env['CONVECT_API_KEY'];
-	if (!apiKey) {
-		throw new Error(
-			'API Key is not set. Did you set it with `CONVECT_API_KEY=...`?',
-		);
-	}
-
 	const bodyFormData = new FormData();
 	bodyFormData.append('mode', options.mode);
 	bodyFormData.append('id', id);
@@ -39,6 +31,6 @@ export async function uploadOutputs(options: UploadOutputsOptions) {
 	try {
 		await apiAxios.post('/api/cli/deployments', bodyFormData);
 	} catch (e: any) {
-		throw e;
+		throw new Error(e.response?.data.message ?? 'An unexpected error occurred');
 	}
 }

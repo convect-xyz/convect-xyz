@@ -42,15 +42,18 @@ export class Transaction<
 	private _handler: THandler;
 	private _logMap: Map<string, any>;
 	private _startBlock: Record<string, number>;
+	private _name: string;
 
 	constructor(options: {
 		logs: TLogs;
 		handler: THandler;
 		startBlock?: Record<string, number>;
+		name: string;
 	}) {
 		this._logs = options.logs;
 		this._handler = options.handler;
 		this._startBlock = options.startBlock ?? {};
+		this._name = options.name;
 		this._logMap = new Map<string, any>();
 
 		for (const log of this._logs) {
@@ -73,7 +76,12 @@ type TransactionOptions<
 		}>,
 		ctx: HandlerContext,
 	) => Promise<void>,
-> = {logs: TLogs; handler: THandler; startBlock?: Record<string, number>};
+> = {
+	name: string;
+	logs: TLogs;
+	handler: THandler;
+	startBlock?: Record<string, number>;
+};
 
 export function transaction<
 	const TLogs extends Log<any>[] | readonly Log<any>[],

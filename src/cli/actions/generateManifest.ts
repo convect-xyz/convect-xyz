@@ -16,6 +16,7 @@ export async function generateManifest(options: GenerateManifestOptions) {
 
 	const manifest = {
 		tx_configs: allTxConfigs.map((v: any) => ({
+			name: v._name,
 			start_block: v._startBlock,
 		})),
 		log_configs: [] as Array<any>,

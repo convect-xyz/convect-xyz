@@ -1,6 +1,5 @@
 import esbuild from 'esbuild';
 import path from 'path';
-import {hashFileName} from '../lib/utils.js';
 
 export type BundleFileOptions = {
 	entrypoint: string;
@@ -9,10 +8,21 @@ export type BundleFileOptions = {
 export async function bundleFile(options: BundleFileOptions) {
 	const {entrypoint} = options;
 
-	const hashedFileName = await hashFileName(path.basename(entrypoint));
+	const projectName = path.dirname(entrypoint).split('/').at(-1) ?? '';
+	const fileName = path.basename(entrypoint).split('.').at(0) ?? '';
 
-	const outfile = path.join('.ingest', 'outputs', hashedFileName + '.js');
-	const outmanifest = path.join('.ingest', 'outputs', hashedFileName + '.json');
+	const outfile = path.join(
+		'.convect',
+		'outputs',
+		projectName,
+		fileName + '.js',
+	);
+	const outmanifest = path.join(
+		'.convect',
+		'outputs',
+		projectName,
+		fileName + '.manifest.json',
+	);
 
 	await esbuild.build({
 		entryPoints: [entrypoint],

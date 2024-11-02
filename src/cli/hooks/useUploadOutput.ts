@@ -17,7 +17,6 @@ export function useUploadOutput(
 	return useMutation({
 		mutationKey,
 		mutationFn: uploadOutputs,
-		throwOnError: false,
 		...(options ?? {}),
 	});
 }
