@@ -10,7 +10,7 @@ export type GenerateManifestOptions = {
 export async function generateManifest(options: GenerateManifestOptions) {
 	const {pipeline, outmanifest} = options;
 
-	const producers = await getProducers(pipeline.chains);
+	const producers = await getProducers(pipeline.chains.map((c: any) => c.id));
 
 	const allTxConfigs = pipeline.handlers as Array<any>;
 
@@ -18,6 +18,7 @@ export async function generateManifest(options: GenerateManifestOptions) {
 		tx_configs: allTxConfigs.map((v: any) => ({
 			name: v._name,
 			start_block: v._startBlock,
+			chains: v._chains?.map((c: any) => c.chainId),
 		})),
 		log_configs: [] as Array<any>,
 		chains: producers.producers.map(p => ({

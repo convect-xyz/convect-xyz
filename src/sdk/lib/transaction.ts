@@ -1,5 +1,6 @@
 import {AbiEvent} from 'abitype';
 import {Address, Log as ViemLog} from 'viem';
+import {custom} from './chains';
 import {Log} from './log';
 
 type InferLog<TLog> = TLog extends Log<infer U>
@@ -43,17 +44,20 @@ export class Transaction<
 	private _logMap: Map<string, any>;
 	private _startBlock: Record<string, number>;
 	private _name: string;
+	private _chains?: Array<ReturnType<typeof custom>>;
 
 	constructor(options: {
 		logs: TLogs;
 		handler: THandler;
 		startBlock?: Record<string, number>;
+		chains?: Array<ReturnType<typeof custom>>;
 		name: string;
 	}) {
 		this._logs = options.logs;
 		this._handler = options.handler;
 		this._startBlock = options.startBlock ?? {};
 		this._name = options.name;
+		this._chains = options.chains;
 		this._logMap = new Map<string, any>();
 
 		for (const log of this._logs) {
@@ -78,6 +82,7 @@ type TransactionOptions<
 	) => Promise<void>,
 > = {
 	name: string;
+	chains?: Array<ReturnType<typeof custom>>;
 	logs: TLogs;
 	handler: THandler;
 	startBlock?: Record<string, number>;

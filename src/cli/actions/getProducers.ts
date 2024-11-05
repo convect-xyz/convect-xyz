@@ -5,6 +5,7 @@ type GetProducersResponse = {
 		id: number;
 		name: string;
 		chainId: number;
+		slug: string;
 	}>;
 };
 
