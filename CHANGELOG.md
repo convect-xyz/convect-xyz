@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.30
+
+### Patch Changes
+
+- f614f33: support for disabling tx configs on specific chains
+
 ## 0.0.29
 
 ### Patch Changes
