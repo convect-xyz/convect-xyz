@@ -68,6 +68,7 @@ export class Transaction<
 
 export type HandlerContext = {
 	chainId: number;
+	deploymentId: string;
 };
 
 type TransactionOptions<
