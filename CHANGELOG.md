@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.31
+
+### Patch Changes
+
+- 6656b3f: Add Deployment ID to convect function context
+
 ## 0.0.30
 
 ### Patch Changes
