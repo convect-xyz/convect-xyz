@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.32
+
+### Patch Changes
+
+- 21f3f75: Add support for abstract mainnet
+
 ## 0.0.31
 
 ### Patch Changes
