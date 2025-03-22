@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.33
+
+### Patch Changes
+
+- 913c693: add init command
+
 ## 0.0.32
 
 ### Patch Changes
