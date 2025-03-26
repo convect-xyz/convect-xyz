@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.34
+
+### Patch Changes
+
+- 4d0932d: Add approval step
+
 ## 0.0.33
 
 ### Patch Changes
