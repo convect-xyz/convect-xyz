@@ -1,6 +1,6 @@
 import {Spinner, StatusMessage} from '@inkjs/ui';
 import {QueryClientProvider} from '@tanstack/react-query';
-import {Box, Static} from 'ink';
+import {Box, Static, Text} from 'ink';
 import {option} from 'pastel';
 import React, {useEffect} from 'react';
 import {z} from 'zod';
@@ -248,7 +248,11 @@ function UploadOutput(props: {
 	override: boolean;
 }) {
 	const state = useState();
-	const {mutateAsync: triggerUpload, isPending} = useUploadOutput({
+	const {
+		data: deploymentInfo,
+		mutateAsync: triggerUpload,
+		isPending,
+	} = useUploadOutput({
 		onSuccess: () => {
 			state.addCompletedStep({
 				title: `Uploaded source code`,
@@ -270,5 +274,9 @@ function UploadOutput(props: {
 		return <Spinner label="Uploading source code" />;
 	}
 
-	return <></>;
+	if (!deploymentInfo) return <></>;
+
+	return (
+		<Text>Approve the deployment here {deploymentInfo.deploymentUrl}</Text>
+	);
 }
