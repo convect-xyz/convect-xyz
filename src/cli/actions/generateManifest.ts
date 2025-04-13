@@ -9,16 +9,24 @@ export type GenerateManifestOptions = {
 
 export async function generateManifest(options: GenerateManifestOptions) {
 	const {pipeline, outmanifest} = options;
-
-	const producers = await getProducers(pipeline.chains.map((c: any) => c.id));
-
 	const allTxConfigs = pipeline.handlers as Array<any>;
+
+	const allChains = allTxConfigs
+		.flatMap((txConfig: any) => txConfig._chains)
+		.reduce((acc: any, curr: any) => {
+			if (!acc.includes(curr)) {
+				acc.push(curr);
+			}
+			return acc;
+		}, []);
+
+	const producers = await getProducers(allChains.map((c: any) => c.id));
 
 	const manifest = {
 		tx_configs: allTxConfigs.map((v: any) => ({
 			name: v._name,
 			start_block: v._startBlock,
-			chains: v._chains?.map((c: any) => c.chainId),
+			chains: v._chains.map((c: any) => c.chainId),
 		})),
 		log_configs: [] as Array<any>,
 		chains: producers.producers.map(p => ({

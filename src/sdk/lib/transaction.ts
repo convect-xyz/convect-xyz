@@ -42,20 +42,18 @@ export class Transaction<
 	private _logs: TLogs;
 	private _handler: THandler;
 	private _logMap: Map<string, any>;
-	private _startBlock: Record<string, number>;
 	private _name: string;
-	private _chains?: Array<ReturnType<typeof custom>>;
+	private _chains: Array<ReturnType<typeof custom>>;
 
 	constructor(options: {
 		logs: TLogs;
 		handler: THandler;
 		startBlock?: Record<string, number>;
-		chains?: Array<ReturnType<typeof custom>>;
+		chains: Array<ReturnType<typeof custom>>;
 		name: string;
 	}) {
 		this._logs = options.logs;
 		this._handler = options.handler;
-		this._startBlock = options.startBlock ?? {};
 		this._name = options.name;
 		this._chains = options.chains;
 		this._logMap = new Map<string, any>();
@@ -83,10 +81,9 @@ type TransactionOptions<
 	) => Promise<void>,
 > = {
 	name: string;
-	chains?: Array<ReturnType<typeof custom>>;
+	chains: Array<ReturnType<typeof custom>>;
 	logs: TLogs;
 	handler: THandler;
-	startBlock?: Record<string, number>;
 };
 
 export function transaction<
