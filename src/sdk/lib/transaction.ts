@@ -39,11 +39,11 @@ export class Transaction<
 	const TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler,
 > {
-	private _logs: TLogs;
-	private _handler: THandler;
-	private _logMap: Map<string, any>;
-	private _name: string;
-	private _chains: Array<ReturnType<typeof custom>>;
+	_logs: TLogs;
+	_handler: THandler;
+	_logMap: Map<string, any>;
+	_name: string;
+	_chains: Array<ReturnType<typeof custom>>;
 
 	constructor(options: {
 		logs: TLogs;

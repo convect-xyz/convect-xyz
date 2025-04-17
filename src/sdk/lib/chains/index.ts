@@ -15,3 +15,8 @@ export const baseMainnet = custom('base-mainnet', 8453);
 export const baseSepolia = custom('base-sepolia', 84532);
 export const abstractTestnet = custom('abstract-testnet', 11124);
 export const abstractMainnet = custom('abstract-mainnet', 2741);
+
+export type ConvectChain = {
+	id: string;
+	chainId: number;
+};
