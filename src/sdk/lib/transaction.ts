@@ -12,6 +12,7 @@ type InferLog<TLog> = TLog extends Log<infer U>
 type InferLogs<TLogs> = TLogs extends
 	| [Log<infer U>, ...infer Rest]
 	| readonly [Log<infer U>, ...infer Rest]
+	| Array<Log<infer U>>
 	? U extends AbiEvent
 		? ViemLog<bigint, number, false, U, true> | InferLogs<Rest>
 		: never
