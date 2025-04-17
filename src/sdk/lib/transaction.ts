@@ -9,15 +9,15 @@ type InferLog<TLog> = TLog extends Log<infer U>
 		: never
 	: never;
 
-type InferLogs<TLogs> = TLogs extends
-	| [Log<infer U>, ...infer Rest]
-	| readonly [Log<infer U>, ...infer Rest]
+type InferLogs<TLogs> = TLogs extends Array<Log<infer U>>
+	? U extends AbiEvent
+		? ViemLog<bigint, number, false, U, true>
+		: never
+	: TLogs extends
+			| [Log<infer U>, ...infer Rest]
+			| readonly [Log<infer U>, ...infer Rest]
 	? U extends AbiEvent
 		? ViemLog<bigint, number, false, U, true> | InferLogs<Rest>
-		: U extends Array<Log<infer U>>
-		? U extends AbiEvent
-			? ViemLog<bigint, number, false, U, true>
-			: never
 		: never
 	: never;
 
