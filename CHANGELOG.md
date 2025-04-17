@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.38
+
+### Patch Changes
+
+- 05bc0f6: fix array logs
+
 ## 0.0.37
 
 ### Patch Changes
