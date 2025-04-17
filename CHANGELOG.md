@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.36
+
+### Patch Changes
+
+- 48902a5: support arrays in logs
+
 ## 0.0.35
 
 ### Patch Changes
