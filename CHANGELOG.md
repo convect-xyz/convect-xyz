@@ -1,5 +1,11 @@
 # convect-xyz
 
+## 0.0.39
+
+### Patch Changes
+
+- c0415b9: fix type issues
+
 ## 0.0.38
 
 ### Patch Changes
