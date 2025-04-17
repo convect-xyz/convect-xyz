@@ -1,5 +1,12 @@
 # convect-xyz
 
+## 0.0.35
+
+### Patch Changes
+
+- 83db3c8: Remove redundant chains call
+- e56adeb: fix auth bug
+
 ## 0.0.34
 
 ### Patch Changes
