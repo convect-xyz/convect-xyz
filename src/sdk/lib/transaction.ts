@@ -1,5 +1,5 @@
 import {AbiEvent} from 'abitype';
-import {Address, Log as ViemLog} from 'viem';
+import {Address, Hex, Log as ViemLog} from 'viem';
 import {custom} from './chains';
 import {Log} from './log';
 
@@ -73,14 +73,21 @@ export type HandlerContext = {
 	deploymentId: string;
 };
 
+type EthTransaction<TLogs extends Log<any>[] | readonly Log<any>[]> = {
+	from: Address;
+	to: Address;
+	blockNumber: number;
+	blockHash: Hex;
+	transactionIndex: number;
+	transactionHash: Hex;
+	value: bigint;
+	logs: InferLogs<TLogs>[];
+};
+
 type TransactionOptions<
 	TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler extends (
-		transactions: Array<{
-			from: Address;
-			to: Address;
-			logs: InferLogs<TLogs>[];
-		}>,
+		transactions: Array<EthTransaction<TLogs>>,
 		ctx: HandlerContext,
 	) => Promise<void>,
 > = {
@@ -93,11 +100,7 @@ type TransactionOptions<
 export function transaction<
 	const TLogs extends Log<any>[] | readonly Log<any>[],
 	THandler extends (
-		transactions: Array<{
-			from: Address;
-			to: Address;
-			logs: InferLogs<TLogs>[];
-		}>,
+		transactions: Array<EthTransaction<TLogs>>,
 		ctx: HandlerContext,
 	) => Promise<void>,
 >(options: TransactionOptions<TLogs, THandler>) {

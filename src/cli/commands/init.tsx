@@ -32,9 +32,9 @@ function useInitialise() {
 			fs.writeFileSync(
 				path.join(process.cwd(), 'convect.config.mjs'),
 				`
-  export default {
-    src: "src/convect",
-  };
+export default {
+  src: "src/convect",
+};
         `.trimStart(),
 			);
 
